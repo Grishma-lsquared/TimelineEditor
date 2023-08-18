@@ -1,17 +1,18 @@
 "use client";
 import React from "react";
+import feed from "@/data/feed.json";
 import { notification } from "antd";
-import { schedule } from "@/data/data";
 import { processFrame, calMaxTime, createLoop } from "@/utils";
+import { Data } from "@/types/dataType";
 
-type NotificationType = "success" | "error";
+export type NotificationType = "success" | "error";
 
-type Context = {
-  data: any[];
-  setData: React.Dispatch<React.SetStateAction<any[]>>;
+export type Context = {
+  data: Data[];
+  setData: React.Dispatch<React.SetStateAction<Data[]>>;
   maxTime: number;
   setMaxTime: React.Dispatch<React.SetStateAction<number>>;
-  finalData: any[];
+  finalData: Data[];
   submitData: () => void;
 };
 
@@ -27,11 +28,33 @@ const dataContext = React.createContext<Context>({
 export const useDataContext = () => React.useContext(dataContext);
 
 const DataContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [data, setData] = React.useState<any[]>([]);
-  const [finalData, setFinalData] = React.useState<any[]>([]);
+  // State to manage data, finalData, and maxTime
+  const [data, setData] = React.useState<Data[]>([]);
+  const [finalData, setFinalData] = React.useState<Data[]>([]);
   const [maxTime, setMaxTime] = React.useState<number>(0);
+
+  // Ant Design notification API
   const [api, contextHolder] = notification.useNotification();
 
+  // Function to retrieve data from the JSON feed
+  const getData = () => {
+    const response = feed;
+    return response["layout"][0]["frame"] as Data[];
+  };
+
+  // Process data to add 'start' and 'end' for individual frames
+  const processData = (data: Data[]) => {
+    const new_data: Data[] = [];
+    data.forEach((frame: Data, index: number) => {
+      new_data[index] = frame;
+      if (new_data[index]["item"]) {
+        new_data[index]["item"] = processFrame(new_data[index]["item"]);
+      }
+    });
+    return new_data;
+  };
+
+  // Open a notification with specified type
   const openNotification = (type: NotificationType) => {
     api[type]({
       message: "Data Saved",
@@ -40,29 +63,25 @@ const DataContextProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const processData = () => {
-    const new_data: any[] = [];
-    schedule.forEach((frame: any, index: number) => {
-      new_data[index] = processFrame(frame);
-    });
-    return new_data;
-  };
-
+  // Function to handle data submission
   const submitData = () => {
     console.log(data);
     openNotification("success");
   };
 
+  // Update maxTime on data change
   React.useEffect(() => {
     setMaxTime(calMaxTime(data));
   }, [data]);
 
+  // Update finalData on maxTime or data change
   React.useEffect(() => {
     setFinalData(createLoop(data, maxTime));
   }, [maxTime, data]);
 
+  // Load initial data on component mount
   React.useEffect(() => {
-    setData(processData());
+    setData(processData(getData()));
   }, []);
 
   return (

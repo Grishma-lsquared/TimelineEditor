@@ -1,4 +1,6 @@
 import React from "react";
+import classnames from "classnames";
+import { Tooltip } from "antd";
 import {
   DragDropContext,
   Droppable,
@@ -9,13 +11,25 @@ import {
 } from "react-beautiful-dnd";
 import { useDataContext } from "@/context/dataContext";
 import { useScaleContext } from "@/context/scaleContext";
-import { reorder, move, secToMs } from "@/utils";
+import { reorder, move, secToMs, removeLoopId } from "@/utils";
+import { Data, Item } from "@/types/dataType";
 
-const DragList = () => {
+type Props = {
+  editing: boolean;
+};
+
+const DragList = ({ editing }: Props) => {
+  // Get data from context
   const { girdSize } = useScaleContext();
-  const { data, setData } = useDataContext();
+  const { data, setData, finalData } = useDataContext();
+
+  // State to track if the window is ready
   const [winReady, setwinReady] = React.useState(false);
 
+  // State to display data
+  const [displayData, setDisplayData] = React.useState<Data[]>([]);
+
+  // Calculate item style for dragging
   const getItemStyle = (
     draggableStyle: DraggingStyle | NotDraggingStyle | undefined,
     start: number,
@@ -26,6 +40,7 @@ const DragList = () => {
     ...draggableStyle,
   });
 
+  // Handle drag end event
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
@@ -33,6 +48,7 @@ const DragList = () => {
 
     let newItems;
     if (source.droppableId === destination.droppableId) {
+      // Move item within a frame
       newItems = reorder(
         data,
         source.droppableId,
@@ -40,28 +56,33 @@ const DragList = () => {
         destination.index
       );
     } else {
+      // Move item between different frames
       newItems = move(data, source, destination);
     }
 
     setData(newItems);
   };
 
+  // Render individual frames
   const renderFrame = React.useCallback(
-    (frame: any) => {
-      return frame.map((item: any, index: number) => (
+    (frame: Data) => {
+      if (!frame["item"]) return;
+      return frame["item"].map((item: Item, index: number) => (
         <Draggable
           key={item.id}
           draggableId={item.id}
           index={index}
-          isDragDisabled={item.loop}
+          isDragDisabled={!editing}
         >
           {(provided) => (
             <div
-              className={`${
+              className={classnames(
+                "border rounded-lg text-center max-h-10 p-2 ml-[2px] z-10",
+                "overflow-hidden text-ellipsis whitespace-nowrap no-scrollbar",
                 item.loop
                   ? "border-indigo-500 bg-black"
                   : "bg-indigo-500 border-black"
-              } overflow-auto border rounded-lg text-center p-2 ml-[2px] z-10`}
+              )}
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
@@ -71,15 +92,24 @@ const DragList = () => {
                 item.end
               )}
             >
-              {item.name}
+              <Tooltip title={editing ? item.id : removeLoopId(item.id)}>
+                {editing ? item.id : removeLoopId(item.id)}
+              </Tooltip>
             </div>
           )}
         </Draggable>
       ));
     },
-    [girdSize]
+    [girdSize, editing]
   );
 
+  // Set displayData state based on editing
+  React.useEffect(() => {
+    if (editing) setDisplayData(data);
+    else setDisplayData(finalData);
+  }, [editing]);
+
+  // Set window ready state when component is mounted
   React.useEffect(() => {
     setwinReady(true);
   }, []);
@@ -87,7 +117,7 @@ const DragList = () => {
   return (
     winReady && (
       <DragDropContext onDragEnd={onDragEnd}>
-        {data.map((frame: any, index: number) => (
+        {displayData.map((frame: Data, index: number) => (
           <Droppable
             key={index}
             droppableId={String(index)}

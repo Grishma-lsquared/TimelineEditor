@@ -20,15 +20,21 @@ const TimelineIndicator = ({
   scroll,
   setScroll,
 }: Props) => {
+  // Access context values
   const { maxTime } = useDataContext();
   const { setTime } = usePlayerContext();
   const { msPerPixel } = useScaleContext();
   const [isDrag, setIsDrag] = React.useState(false);
 
+  // Function to handle drag start
   const handelStart = () => setIsDrag(true);
+
+  // Function to handle drag stop
   const handelStop = () => setIsDrag(false);
 
+  // Function to handle drag event
   const handleDrag = (_: DraggableEvent, data: DraggableData) => {
+    // Ensure the dragged position is within valid time range
     if (!(data.x > 0 && msToSec(data.x * msPerPixel) < maxTime)) return;
 
     const timeOffset = Math.floor(data.x * msPerPixel);
@@ -36,6 +42,7 @@ const TimelineIndicator = ({
     setTime(timeOffset);
   };
 
+  // Scroll the timeline with the indicator
   React.useEffect(() => {
     if (!isDrag && linePosition - scroll > 700) {
       timelineScroll.current?.scroll({

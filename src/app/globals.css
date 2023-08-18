@@ -17,7 +17,13 @@
 }
 
 body {
-  color: white;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
@@ -37,6 +43,9 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75;
+    @apply bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700;
+  }
+  .btn-success {
+    @apply bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700;
   }
 }

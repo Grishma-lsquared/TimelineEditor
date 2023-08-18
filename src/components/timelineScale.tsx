@@ -11,25 +11,34 @@ type Props = {
 };
 
 const TimelineScale = ({ scroll, setScroll }: Props) => {
+  // Ref to track timeline markers scroll position
   const scaleScroll = React.useRef<HTMLDivElement | null>(null);
+
+  // Access context values
   const { maxTime } = useDataContext();
   const { setTime } = usePlayerContext();
   const { girdSize, msPerPixel } = useScaleContext();
 
+  // State to manage the number of grids and the last grid
   const [numberOfGrids, setNumberOfGrids] = React.useState<number>(0);
   const [lastGrid, setLastGrid] = React.useState<number>(0);
+
+  // Arrays to represent seconds and milliseconds
   const seconds: number[] = Array.from({ length: numberOfGrids });
   const milliseconds: number[] = Array.from({ length: 10 });
 
+  // Function to handle scroll event to update the scroll position
   const handleScroll = (e: WheelEvent) => {
     scaleScroll.current && setScroll(scaleScroll.current.scrollLeft);
   };
 
+  // Function to handle click event on a marker to set the time
   const handleClick = (e: React.MouseEvent, index: number) => {
     const time = secToMs(index * girdSize) + e.nativeEvent.offsetX * msPerPixel;
     setTime(time);
   };
 
+  // Render milliseconds for a given seconds marker
   const renderMilliseconds = React.useCallback(
     (index: number) =>
       milliseconds.map((ms, jIndex) => {
@@ -56,6 +65,7 @@ const TimelineScale = ({ scroll, setScroll }: Props) => {
     [numberOfGrids, lastGrid]
   );
 
+  // Render the last time marker
   const renderLast = React.useCallback(
     () => (
       <div
@@ -74,6 +84,7 @@ const TimelineScale = ({ scroll, setScroll }: Props) => {
     [maxTime]
   );
 
+  // Attach event listener for scroll handling
   React.useEffect(() => {
     scaleScroll.current &&
       scaleScroll.current.addEventListener("wheel", handleScroll, {
@@ -81,11 +92,13 @@ const TimelineScale = ({ scroll, setScroll }: Props) => {
       });
   }, []);
 
+  // Update scroll position
   React.useEffect(() => {
     if (!scaleScroll.current) return;
     scaleScroll.current.scrollLeft = scroll;
   }, [scroll]);
 
+  // Update number of grids and last grid when maxTime or gridSize changes
   React.useEffect(() => {
     setNumberOfGrids(Math.ceil(maxTime / girdSize));
     setLastGrid(((maxTime % girdSize) * 10) / girdSize);

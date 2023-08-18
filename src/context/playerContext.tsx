@@ -18,6 +18,7 @@ const playerContext = React.createContext<Context>({
 export const usePlayerContext = () => React.useContext(playerContext);
 
 const PlayerContextProvider = ({ children }: { children: React.ReactNode }) => {
+  // State to manage play state and time
   const [play, setPlay] = React.useState<boolean>(false);
   const [time, setTime] = React.useState<number>(0);
 

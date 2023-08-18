@@ -5,3 +5,4 @@ export { default as reorder } from "./reorder";
 export { default as msToSec } from "./msToSec";
 export { default as secToMs } from "./secToMs";
 export { default as createLoop } from "./createLoop";
+export { default as removeLoopId } from "./removeLoopId";

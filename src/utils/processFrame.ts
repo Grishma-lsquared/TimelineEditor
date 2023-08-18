@@ -1,6 +1,11 @@
-const processFrame = (frame: any) => {
+import { Item } from "@/types/dataType";
+
+// Setting start and end times for each item in a frame
+const processFrame = (frame: Item[]) => {
   let start = 0;
-  return frame.map((e: any) => {
+
+  // Map over each item in the frame
+  return frame.map((e: Item) => {
     e.start = start;
     e.end = start + e.duration;
     start = e.end;

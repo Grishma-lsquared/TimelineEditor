@@ -4,6 +4,7 @@ import ReactPlayer from "react-player";
 import { useDataContext } from "@/context/dataContext";
 import { usePlayerContext } from "@/context/playerContext";
 import { msToSec } from "@/utils";
+import { Data, Item } from "@/types/dataType";
 
 const Player = () => {
   const videoPlayer = React.useRef<ReactPlayer[] | null[]>([]);
@@ -11,20 +12,22 @@ const Player = () => {
   const { play, time } = usePlayerContext();
   const [isOdd, setIsOdd] = React.useState<boolean>(false);
 
+  // Function to seek the player to a specific time
   const moveTo = (time: number, ref: ReactPlayer) => {
     const seconds = msToSec(time);
     const start = ref.props.start;
     ref.seekTo(seconds - start, "seconds");
   };
 
+  // Function to render players for the current frame
   const renderPlayer = React.useCallback(
-    (frame: any, index: number) =>
+    (frame: Item[], index: number) =>
       frame.map(
-        (e: any) =>
+        (e: Item) =>
           msToSec(time) >= e.start &&
           msToSec(time) < e.end && (
             <React.Fragment key={e.id}>
-              {e.type == "image" && <img src={e.src} alt={e.name} />}
+              {e.type == "image" && <img src={e.src} alt={e.id} />}
               {e.type == "video" && (
                 <ReactPlayer
                   ref={(ref) => {
@@ -42,6 +45,7 @@ const Player = () => {
     [time, videoPlayer, play]
   );
 
+  // Update the player's time based on time context
   React.useEffect(() => {
     if (play) return;
     videoPlayer.current.forEach((e: ReactPlayer | null) => {
@@ -50,6 +54,7 @@ const Player = () => {
     });
   }, [time]);
 
+  // Update isOdd state based on finalData length
   React.useEffect(() => {
     if (finalData.length % 2 == 0) setIsOdd(false);
     else setIsOdd(true);
@@ -57,8 +62,8 @@ const Player = () => {
 
   return (
     <div className="grid grid-cols-2 max-h-[90vh] min-h-[90vh] bg-white">
-      {finalData.map((frame: any[], index: number) => {
-        if (!frame.length) return;
+      {finalData.map((frame: Data, index: number) => {
+        if (!(frame["item"] && frame["item"].length)) return;
         return (
           <div
             key={index}
@@ -70,7 +75,7 @@ const Player = () => {
                 : "max-w-[50vw] px-2"
             )}
           >
-            {renderPlayer(frame, index)}
+            {renderPlayer(frame["item"], index)}
           </div>
         );
       })}

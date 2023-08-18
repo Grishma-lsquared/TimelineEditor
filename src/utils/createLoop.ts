@@ -1,6 +1,8 @@
 import processFrame from "./processFrame";
+import { Data, Item } from "@/types/dataType";
 
-const loopFrame = (frame: any[], maxTime: number) => {
+// Create looped item array for a frame based on maxTime
+const loopFrame = (frame: Item[], maxTime: number) => {
   const newFrame = [];
 
   let frameIndex = 0;
@@ -15,7 +17,7 @@ const loopFrame = (frame: any[], maxTime: number) => {
     // Create a new frame object
     const newFrameObject = {
       ...frame[frameIndex],
-      id: loopCount + frame[frameIndex].id,
+      id: frame[frameIndex].id + `-${loopCount}`,
     };
     if (loopCount > 0) newFrameObject.loop = true;
 
@@ -31,13 +33,23 @@ const loopFrame = (frame: any[], maxTime: number) => {
   return newFrame;
 };
 
-const createLoop = (data: any[], maxTime: number) => {
-  const loopData: any[] = [];
-  data.forEach((frame: any[]) => {
-    if (frame.length) {
-      let new_frame = loopFrame(frame, maxTime);
-      loopData.push(processFrame(new_frame));
-    }
+// Create looped data based on maxTime for each frame
+const createLoop = (data: Data[], maxTime: number) => {
+  const loopData: Data[] = [];
+
+  // Loop through each frame in the data
+  data.forEach((frame: Data) => {
+    if (!(frame["item"] && frame["item"].length)) return;
+
+    let new_frame = { ...frame };
+
+    // Create a looped item array for a frame
+    let new_item = loopFrame(new_frame["item"], maxTime);
+
+    // Process the looped items in a frame
+    new_frame["item"] = processFrame(new_item);
+
+    loopData.push(new_frame);
   });
   return loopData;
 };

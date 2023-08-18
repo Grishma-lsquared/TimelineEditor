@@ -12,30 +12,33 @@ import { useScaleContext } from "@/context/scaleContext";
 import { msToSec, secToMs } from "@/utils";
 
 const TimeLine = () => {
+  // Ref to track timeline scroll position
   const timelineScroll = React.useRef<HTMLDivElement | null>(null);
 
+  // Access context values
   const { maxTime } = useDataContext();
   const { play, setPlay, time, setTime } = usePlayerContext();
   const { msIncrease, pixelIncreaseRate, msPerPixel } = useScaleContext();
 
+  // State to track scroll position and timeline appearance
   const [scroll, setScroll] = React.useState<number>(0);
   const [linePosition, setLinePosition] = React.useState(0);
   const [showTimeline, setToggleTimeline] = React.useState<boolean>(false);
+  const [editing, setEditing] = React.useState<boolean>(false);
 
+  // Function to handle advancing time
   const handleTime = () => {
     if (!(play && msToSec(time) < maxTime)) return;
     setTime((prevTime: number) => prevTime + msIncrease);
     setLinePosition((prevPosition) => prevPosition + pixelIncreaseRate);
   };
 
-  const toggleTimeline = () => {
-    setToggleTimeline(!showTimeline);
-  };
-
+  // Function to handle timeline scrolling
   const handleScroll = () => {
     timelineScroll.current && setScroll(timelineScroll.current.scrollLeft);
   };
 
+  // Add wheel event listener to the timeline scroll element
   React.useEffect(() => {
     if (!timelineScroll.current) return;
     timelineScroll.current.addEventListener("wheel", handleScroll, {
@@ -43,22 +46,26 @@ const TimeLine = () => {
     });
   }, [showTimeline]);
 
+  // Scroll timeline based on scroll state value
   React.useEffect(() => {
     if (!timelineScroll.current) return;
     timelineScroll.current.scrollLeft = scroll;
   }, [scroll]);
 
+  // Update line position when time changes
   React.useEffect(() => {
     setLinePosition(time / msPerPixel);
     if (msToSec(time) >= maxTime) setPlay(false);
   }, [time, msPerPixel]);
 
+  // Ensure line position stays within valid time range
   React.useEffect(() => {
     if (!(msToSec(linePosition * msPerPixel) > maxTime)) return;
     const newPosisiton = secToMs(maxTime) / msPerPixel - pixelIncreaseRate;
     setLinePosition(newPosisiton);
   }, [maxTime]);
 
+  // Use custom interval hook to increase time during play
   useInterval(handleTime, msIncrease, [play]);
 
   return (
@@ -76,7 +83,9 @@ const TimeLine = () => {
         setLinePosition={setLinePosition}
         timelineScroll={timelineScroll}
         showTimeline={showTimeline}
-        toggleTimeline={toggleTimeline}
+        setToggleTimeline={setToggleTimeline}
+        editing={editing}
+        setEditing={setEditing}
       />
 
       {showTimeline && (
@@ -97,7 +106,7 @@ const TimeLine = () => {
               setLinePosition={setLinePosition}
             />
 
-            <DragList />
+            <DragList editing={editing} />
           </div>
         </React.Fragment>
       )}

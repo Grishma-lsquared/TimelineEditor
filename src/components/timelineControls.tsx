@@ -10,29 +10,37 @@ type Props = {
   setLinePosition: React.Dispatch<React.SetStateAction<number>>;
   timelineScroll: React.MutableRefObject<HTMLDivElement | null>;
   showTimeline: boolean;
-  toggleTimeline: () => void;
+  setToggleTimeline: React.Dispatch<React.SetStateAction<boolean>>;
+  editing: boolean;
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const TimelineControls = ({
   setLinePosition,
   timelineScroll,
   showTimeline,
-  toggleTimeline,
+  setToggleTimeline,
+  editing,
+  setEditing,
 }: Props) => {
+  // Access context values
   const { girdSize, setGridSize } = useScaleContext();
   const { maxTime, submitData } = useDataContext();
   const { play, setPlay, time, setTime } = usePlayerContext();
 
+  // Function to start playback
   const handleStart = () => {
     if (msToSec(time) < maxTime) {
       setPlay(true);
     }
   };
 
+  // Function to stop playback
   const handleStop = () => {
     setPlay(false);
   };
 
+  // Function to reset playback
   const handleReset = () => {
     setTime(0);
     setLinePosition(0);
@@ -40,10 +48,28 @@ const TimelineControls = ({
     timelineScroll.current?.scroll({ top: 0, left: 0 });
   };
 
+  // Function to handle submit
+  const handleSubmit = () => {
+    submitData();
+    setEditing(false);
+  };
+
+  // Function to handle edit
+  const handleEdit = () => {
+    setEditing(!editing);
+  };
+
+  // Toggle timeline visibility
+  const toggleTimeline = () => {
+    setToggleTimeline(!showTimeline);
+  };
+
+  // Function to change the grid size
   const changeGridSize = (value: number) => {
     setGridSize(value);
   };
 
+  // Format time in min:sec:ms
   const formatTime = (time: number) => {
     const milliseconds = (time % 1000) / 10;
     const seconds = Math.floor(msToSec(time)) % 60;
@@ -54,9 +80,13 @@ const TimelineControls = ({
       .padStart(2, "0")}:${milliseconds.toString().padStart(2, "0")}`;
   };
 
+  // Toggle play/pause playback
   const togglePlayPause = () => (play ? handleStop() : handleStart());
 
+  // Determine play/pause button icon based on playback state
   const togglePlayPauseButton = play ? <Pause /> : <Play />;
+
+  // Determine open/close button icon based on timeline visibility
   const toggleTimelineButton = showTimeline ? <Close /> : <Open />;
 
   return (
@@ -84,16 +114,24 @@ const TimelineControls = ({
             { value: 1, label: "1 sec" },
             { value: 2, label: "2 sec" },
             { value: 5, label: "5 sec" },
+            { value: 10, label: "10 sec" },
+            { value: 15, label: "15 sec" },
           ]}
         />
       )}
 
-      <div className="flex ml-auto">
-        {showTimeline && (
-          <button className="mx-2 px-3 btn-primary" onClick={submitData}>
-            Save
-          </button>
-        )}
+      <div className="flex justify-end w-full">
+        <div className="w-full cursor-pointer" onClick={toggleTimeline}></div>
+        {showTimeline &&
+          (editing ? (
+            <button className="mx-2 px-3 btn-success" onClick={handleSubmit}>
+              Save
+            </button>
+          ) : (
+            <button className="mx-2 px-3 btn-primary" onClick={handleEdit}>
+              Edit
+            </button>
+          ))}
         <button className="mx-2 w-[24px]" onClick={toggleTimeline}>
           {toggleTimelineButton}
         </button>
