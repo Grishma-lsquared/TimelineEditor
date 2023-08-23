@@ -62,7 +62,7 @@ const TimelineIndicator = ({
       onStart={handelStart}
       onStop={handelStop}
     >
-      <div className="absolute bg-blue-600 w-[2px] h-full top-0 left-0 cursor-grab z-20 ml-3" />
+      <div className="absolute bg-blue-600 w-[2px] h-full top-0 left-0 cursor-grab z-20 ml-6" />
     </Draggable>
   );
 };

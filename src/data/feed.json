@@ -472,7 +472,8 @@
               "settings": "{\"speed\":100,\"bg\":\"#000000\",\"bga\":1,\"bullet\":\"#990000\",\"titleText\":\"#ffffff\",\"font\":{\"label\":\"Century Gothic\",\"value\":\"century gothic\"},\"dir\":\"rl\",\"align\":\"l\",\"fontSize\":16,\"fontSizeOpt\":\"a\"}",
               "iid": 30787,
               "active": 1,
-              "scale": "fit"
+              "scale": "fit",
+              "fileName": "vercel.svg"
             },
             {
               "id": "7738-2348-30787-1",
@@ -485,7 +486,8 @@
               "settings": "{\"speed\":100,\"bg\":\"#000000\",\"bga\":1,\"bullet\":\"#990000\",\"titleText\":\"#ffffff\",\"font\":{\"label\":\"Century Gothic\",\"value\":\"century gothic\"},\"dir\":\"rl\",\"align\":\"l\",\"fontSize\":16,\"fontSizeOpt\":\"a\"}",
               "iid": 30787,
               "active": 1,
-              "scale": "fit"
+              "scale": "fit",
+              "fileName": "vercel.svg"
             }
           ]
         },

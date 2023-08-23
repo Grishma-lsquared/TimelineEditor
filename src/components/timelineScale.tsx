@@ -105,7 +105,7 @@ const TimelineScale = ({ scroll, setScroll }: Props) => {
   }, [maxTime, girdSize]);
 
   return (
-    <div className="relative">
+    <div className="relative pl-3">
       <div
         ref={scaleScroll}
         className="flex justify-start 

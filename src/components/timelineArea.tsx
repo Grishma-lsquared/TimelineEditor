@@ -31,7 +31,7 @@ const TimelineArea = () => {
   }, [maxTime, girdSize]);
 
   return (
-    <div className="absolute flex justify-start min-h-full pointer-events-none">
+    <div className="absolute flex justify-start min-h-full pointer-events-none pl-3">
       <span className="min-w-[12px] min-h-full"></span>
       {timeline.map((e, i) => (
         <span
